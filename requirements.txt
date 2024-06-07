@@ -1,2 +1,4 @@
 pyrogram
 python-dotenv
+aria2p
+requests
