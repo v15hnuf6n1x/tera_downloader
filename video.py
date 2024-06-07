@@ -10,8 +10,8 @@ BASE_URL = "https://ter0-790c5028a43e.herokuapp.com"
 
 aria2 = aria2p.API(
     aria2p.Client(
-        host="http://localhost",
-        port=6800,
+        host="http://0.0.0.0",
+        port=6860,
         secret=""
     )
 )
