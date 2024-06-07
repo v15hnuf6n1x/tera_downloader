@@ -1,4 +1,4 @@
-FROM python:3.12.3
+FROM hrishi2861/terabox:latest
 WORKDIR /app
 COPY . .
 CMD ["bash", "start.sh"]
