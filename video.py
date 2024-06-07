@@ -2,6 +2,7 @@ import requests
 import aria2p
 from datetime import datetime
 from status import format_progress_bar
+from config import BASE_URL
 import asyncio
 import os, time
 import logging
@@ -9,7 +10,7 @@ import logging
 
 aria2 = aria2p.API(
     aria2p.Client(
-        host="http://localhost",
+        host = BASE_URL ,
         port=6800,
         secret=""
     )
