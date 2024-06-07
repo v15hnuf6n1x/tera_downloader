@@ -14,28 +14,28 @@ load_dotenv('config.env', override=True)
 
 logging.basicConfig(level=logging.INFO)
 
-api_id = environ.get('TELEGRAM_API', '')
+api_id = environ.get('TELEGRAM_API', '28192191')
 if len(api_id) == 0:
     logging.error("TELEGRAM_API variable is missing! Exiting now")
     exit(1)
 
-api_hash = environ.get('TELEGRAM_HASH', '')
+api_hash = environ.get('TELEGRAM_HASH', '663164abd732848a90e76e25cb9cf54a')
 if len(api_hash) == 0:
     logging.error("TELEGRAM_HASH variable is missing! Exiting now")
     exit(1)
     
-bot_token = environ.get('BOT_TOKEN', '')
+bot_token = environ.get('BOT_TOKEN', '7198441390:AAFKm0aYuNbv_kWLesYFmtlLpC-nP5ogrbY')
 if len(bot_token) == 0:
     logging.error("BOT_TOKEN variable is missing! Exiting now")
     exit(1)
-dump_id = environ.get('DUMP_CHAT_ID', '')
+dump_id = environ.get('DUMP_CHAT_ID', '-1002149484754')
 if len(dump_id) == 0:
     logging.error("DUMP_CHAT_ID variable is missing! Exiting now")
     exit(1)
 else:
     dump_id = int(dump_id)
 
-fsub_id = environ.get('FSUB_ID', '')
+fsub_id = environ.get('FSUB_ID', '-1002149484754')
 if len(fsub_id) == 0:
     logging.error("FSUB_ID variable is missing! Exiting now")
     exit(1)
@@ -75,7 +75,7 @@ async def handle_message(client, message: Message):
     is_member = await is_user_member(client, user_id)
 
     if not is_member:
-        join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/jetmirror")
+        join_button = InlineKeyboardButton("ᴊᴏɪɴ ", url="https://t.me/naresh3221")
         reply_markup = InlineKeyboardMarkup([[join_button]])
         await message.reply_text("ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴍʏ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ ᴍᴇ.", reply_markup=reply_markup)
         return
