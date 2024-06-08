@@ -6,12 +6,12 @@ import asyncio
 import os, time
 import logging
 
-BASE_URL = "https://ter0-790c5028a43e.herokuapp.com"
+BASE_URL = "https://tera-downloader.onrender.com"
 
 aria2 = aria2p.API(
     aria2p.Client(
-        host="http://0.0.0.0",
-        port=6860,
+        host=BASE_URL,
+        port=8080,
         secret=""
     )
 )
