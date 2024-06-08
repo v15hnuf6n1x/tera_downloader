@@ -9,7 +9,7 @@ import logging
 
 aria2 = aria2p.API(
     aria2p.Client(
-        host="http://localhost",
+        host="http://0.0.0.0",
         port=6800,
         secret=""
     )
