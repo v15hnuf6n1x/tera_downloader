@@ -5,12 +5,16 @@ import asyncio
 from datetime import datetime
 from pyrogram.enums import ChatMemberStatus
 from dotenv import load_dotenv
+from pyrogram.errors import FloodWait, UserIsBlocked, InputUserDeactivated
+from config import TELEGRAM_API, TELEGRAM_HASH, BOT_TOKEN, DUMP_CHAT_ID, ADMINS, FSUB_ID, WAIT_MSG
 from os import environ
 import time
+from helper import subscribed
+from database import add_user, del_user, full_userbase, present_user
 from status import format_progress_bar
 from video import download_video, upload_video
 
-load_dotenv('config.env', override=True)
+load_dotenv('sconfig.env', override=True)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -24,7 +28,7 @@ if len(api_hash) == 0:
     logging.error("TELEGRAM_HASH variable is missing! Exiting now")
     exit(1)
     
-bot_token = environ.get('BOT_TOKEN', '7198441390:AAFKm0aYuNbv_kWLesYFmtlLpC-nP5ogrbY')
+bot_token = environ.get('BOT_TOKEN', '7198441390:AAHPvsEWEGpRTuLgo8g0qR0Tx54nPAicr6g')
 if len(bot_token) == 0:
     logging.error("BOT_TOKEN variable is missing! Exiting now")
     exit(1)
@@ -44,7 +48,7 @@ else:
 
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
-@app.on_message(filters.command("start"))
+@app.on_message(filters.command('start') & filters.private & subscribed)
 async def start_command(client, message):
     sticker_message = await message.reply_sticker("CAACAgIAAxkBAAEYonplzwrczhVu3I6HqPBzro3L2JU6YAACvAUAAj-VzAoTSKpoG9FPRjQE")
     await asyncio.sleep(2)
@@ -68,11 +72,16 @@ async def is_user_member(client, user_id):
         logging.error(f"Error checking membership status for user {user_id}: {e}")
         return False
 
-@app.on_message(filters.text)
+@app.on_message(filters.text & filters.private & subscribed)
 async def handle_message(client, message: Message):
     user_id = message.from_user.id
     user_mention = message.from_user.mention
     is_member = await is_user_member(client, user_id)
+    if not await present_user(id):
+        try:
+            await add_user(id)
+        except:
+            pass
 
     if not is_member:
         join_button = InlineKeyboardButton("ᴊᴏɪɴ ", url="https://t.me/teraboxx_downloader")
@@ -93,6 +102,59 @@ async def handle_message(client, message: Message):
     except Exception as e:
         logging.error(f"Error handling message: {e}")
         await reply_msg.edit_text("ғᴀɪʟᴇᴅ ᴛᴏ ᴘʀᴏᴄᴇss ʏᴏᴜʀ ʀᴇǫᴜᴇsᴛ.\nɪғ ʏᴏᴜʀ ғɪʟᴇ sɪᴢᴇ ɪs ᴍᴏʀᴇ ᴛʜᴀɴ 120ᴍʙ ɪᴛ ᴍɪɢʜᴛ ғᴀɪʟ ᴛᴏ ᴅᴏᴡɴʟᴏᴀᴅ.")
+
+
+@app.on_message(filters.command('users') & filters.private & filters.user(ADMINS))
+async def get_users(client, message: Message):
+    msg = await client.send_message(chat_id=message.chat.id, text=WAIT_MSG)
+    users = await full_userbase()
+    await msg.edit(f"{len(users)} users are using this bot")
+
+@app.on_message(filters.private & filters.command('broadcast') & filters.user(ADMINS))
+async def send_text(client, message: Message):
+    if message.reply_to_message:
+        query = await full_userbase()
+        broadcast_msg = message.reply_to_message
+        total = 0
+        successful = 0
+        blocked = 0
+        deleted = 0
+        unsuccessful = 0
+        
+        pls_wait = await message.reply("<i>Broadcasting Message.. This will Take Some Time</i>")
+        for chat_id in query:
+            try:
+                await broadcast_msg.copy(chat_id)
+                successful += 1
+            except FloodWait as e:
+                await asyncio.sleep(e.x)
+                await broadcast_msg.copy(chat_id)
+                successful += 1
+            except UserIsBlocked:
+                await del_user(chat_id)
+                blocked += 1
+            except InputUserDeactivated:
+                await del_user(chat_id)
+                deleted += 1
+            except:
+                unsuccessful += 1
+                pass
+            total += 1
+        
+        status = f"""<b><u>Broadcast Completed</u>
+        Total Users  : <code>{total}</code>
+        Successful   : <code>{successful}</code>
+        Blocked Users: <code>{blocked}</code>
+        Deleted Accounts: <code>{deleted}</code>
+        Unsuccessful : <code>{unsuccessful}</code></b>"""
+        
+        return await pls_wait.edit(status)
+           
+    else:
+        msg = await message.reply(REPLY_ERROR)
+        await asyncio.sleep(8)
+        await msg.delete()
+ 
 
 if __name__ == "__main__":
     app.run()
